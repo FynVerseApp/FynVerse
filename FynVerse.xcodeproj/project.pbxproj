@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		851D54582E253CC80076368A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 851D54572E253CC80076368A /* GoogleSignIn */; };
+		851D545A2E253CC80076368A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 851D54592E253CC80076368A /* GoogleSignInSwift */; };
+		8531F0252E2763900053A8C3 /* SwiftOTP in Frameworks */ = {isa = PBXBuildFile; productRef = 8531F0242E2763900053A8C3 /* SwiftOTP */; };
+		85506C262E23BCC500ED607C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 85506C252E23BCC500ED607C /* FirebaseAnalytics */; };
+		85506C292E23C1E600ED607C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 85506C282E23C1E600ED607C /* FirebaseAuth */; };
+		85937FC02E3BAA6A00366299 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 85937FBF2E3BAA6A00366299 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		85506C062E23B68300ED607C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +38,22 @@
 		85506C0F2E23B68300ED607C /* FynVerseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FynVerseUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		855845282E25485300E846BC /* Exceptions for "FynVerse" folder in "FynVerse" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 85506BF72E23B68100ED607C /* FynVerse */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		85506BFA2E23B68100ED607C /* FynVerse */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				855845282E25485300E846BC /* Exceptions for "FynVerse" folder in "FynVerse" target */,
+			);
 			path = FynVerse;
 			sourceTree = "<group>";
 		};
@@ -52,6 +74,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85506C262E23BCC500ED607C /* FirebaseAnalytics in Frameworks */,
+				85506C292E23C1E600ED607C /* FirebaseAuth in Frameworks */,
+				851D54582E253CC80076368A /* GoogleSignIn in Frameworks */,
+				8531F0252E2763900053A8C3 /* SwiftOTP in Frameworks */,
+				851D545A2E253CC80076368A /* GoogleSignInSwift in Frameworks */,
+				85937FC02E3BAA6A00366299 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +106,7 @@
 				85506BFA2E23B68100ED607C /* FynVerse */,
 				85506C082E23B68300ED607C /* FynVerseTests */,
 				85506C122E23B68300ED607C /* FynVerseUITests */,
+				85506C272E23C1E600ED607C /* Frameworks */,
 				85506BF92E23B68100ED607C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +119,13 @@
 				85506C0F2E23B68300ED607C /* FynVerseUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		85506C272E23C1E600ED607C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +148,12 @@
 			);
 			name = FynVerse;
 			packageProductDependencies = (
+				85506C252E23BCC500ED607C /* FirebaseAnalytics */,
+				85506C282E23C1E600ED607C /* FirebaseAuth */,
+				851D54572E253CC80076368A /* GoogleSignIn */,
+				851D54592E253CC80076368A /* GoogleSignInSwift */,
+				8531F0242E2763900053A8C3 /* SwiftOTP */,
+				85937FBF2E3BAA6A00366299 /* FirebaseFirestore */,
 			);
 			productName = FynVerse;
 			productReference = 85506BF82E23B68100ED607C /* FynVerse.app */;
@@ -171,7 +213,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					85506BF72E23B68100ED607C = {
 						CreatedOnToolsVersion = 16.4;
@@ -195,6 +237,11 @@
 			);
 			mainGroup = 85506BEF2E23B68100ED607C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 85506BF92E23B68100ED607C /* Products */;
 			projectDirPath = "";
@@ -322,12 +369,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -380,11 +428,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -400,11 +449,15 @@
 				DEVELOPMENT_TEAM = 4ZJ6BWAJY6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FynVerse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FynVerse;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -428,11 +481,15 @@
 				DEVELOPMENT_TEAM = 4ZJ6BWAJY6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FynVerse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FynVerse;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -558,6 +615,66 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+		8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lachlanbell/SwiftOTP";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.2;
+			};
+		};
+		85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		851D54572E253CC80076368A /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		851D54592E253CC80076368A /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		8531F0242E2763900053A8C3 /* SwiftOTP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */;
+			productName = SwiftOTP;
+		};
+		85506C252E23BCC500ED607C /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		85506C282E23C1E600ED607C /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		85937FBF2E3BAA6A00366299 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 85506BF02E23B68100ED607C /* Project object */;
 }
