@@ -1,48 +1,28 @@
 import SwiftUI
 
 struct MainTabView: View {
-   
-    @EnvironmentObject var viewm: HomeViewModel
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var vm: HomeViewModel
+    @ObservedObject var authvm: AuthViewModel
     var body: some View {
-        TabView {
-                   Tab("Explore", systemImage: "globe") {
-                       HomeView()
-                   }
+        NavigationStack {
+            TabView {
+                HomeView(authvm: authvm)
+                    .tabItem { Label("Explore", systemImage: "globe") }
 
-                   Tab("My Portfolio", systemImage: "briefcase.circle.fill") {
-                       PortfolioView()
-                   }
-           
-                   Tab("Profile", systemImage: "person.fill") {
-                       ProfileView()
-                   }
-            Tab(role: .search){
-              
-                    CompleteSearchBar(
-                        searchText: $viewm.searchText,
-                        filteredStock: viewm.filteredStocks)
-                        }
+                PortfolioView( authvm: authvm)
+                    .tabItem { Label("My Portfolio", systemImage: "briefcase.circle.fill") }
+
+                ProfileView()
+                    .tabItem { Label("Profile", systemImage: "person.fill") }
+
+                CompleteSearchBar(homeVM: vm, authvm: authvm)
+                    .tabItem { Label("Search", systemImage: "magnifyingglass") }
             }
-        .task {
-                    // This runs once when the view appears.
-                    // Check if the user is authenticated and then fetch the data.
-                    // This ensures AuthViewModel.user is populated first.
-                    if authViewModel.user != nil {
-                        await viewm.fetchPortfolioStocks()
-                    }
-                }
-            
             .tabViewStyle(.automatic)
-           // .tabBarMinimizeBehavior(.onScrollDown)
+            .tabBarMinimizeBehavior(.onScrollDown)
+
+        }
     }
 }
 
-
-#Preview {
-    NavigationStack{
-        MainTabView()
-            .environmentObject(HomeViewModel(authViewModel: AuthViewModel()))
-    }
-}
-
+   

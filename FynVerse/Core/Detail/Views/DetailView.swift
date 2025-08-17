@@ -1,59 +1,86 @@
 import SwiftUI
 
 struct DetailView: View {
-    let stock: StockModel?
-    let DBStock : DBPortfolioStock?
-    @EnvironmentObject var viewModel: HomeViewModel
-    @State private var selectedTab = 0
-    @State private var showMoreOverview = false
-    @State private var showMoreDetails = false
-    @State private var showBuySheet = false
-    @State private var showSellSheet = false
+    @StateObject private var vm: DetailViewModel
+    @StateObject private var predictionVM = StockPredictionViewModel()
+    @StateObject private var summaryVM: StockSummaryViewModel
+    
+    @EnvironmentObject var homeVM: HomeViewModel
+    @ObservedObject var authViewModel: AuthViewModel
+    
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
-    private let columns: [GridItem] = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
+    init(stock: StockModel?, DBStock: DBPortfolioStock?, authViewModel: AuthViewModel) {
+        _vm = StateObject(wrappedValue: DetailViewModel(stock: stock, DBStock: DBStock, authViewModel: authViewModel))
+        _summaryVM = StateObject(wrappedValue: StockSummaryViewModel(stockName: stock?.NAME_OF_COMPANY ?? ""))
+        self.authViewModel = authViewModel
+    }
 
     var body: some View {
         ZStack {
             Color.theme.background.ignoresSafeArea()
-
+            
             ScrollView {
-                VStack {
-                    if let stock = stock {
-                        StockChartView(symbol: stock.symbol)
-                            .frame(height: 300)
-                            .padding(.bottom, 10)
+                VStack(spacing: 20) {
+                    
+                    // Chart
+                    if let stock = vm.stock {
+                        VStack(spacing: 0) {
+                            StockChartView(symbol: stock.SYMBOL)
+                                .frame(height: 280)
+                                .padding(.horizontal)
+                                .padding(.top, 12)
+                            Divider()
+                                .padding(.horizontal)
+                                .padding(.bottom, 6)
+                        }
+                    }
+                    
+                    // Predictions
+                    if let stock = vm.stock {
+                        Next5DPredictionView(
+                            stockSymbol: stock.SYMBOL,
+                            prediction: predictionVM.next5DPrediction,
+                            longPred: predictionVM.longShortPrediction,
+                            isLoading: predictionVM.isLoading,
+                            animateSpinner: predictionVM.animateSpinner
+                        )
+                        .padding(.top)
                     }
 
+                    // Tab Selector + Content
                     tabSelector
                     tabDetailView
                 }
                 .padding(.bottom, 100)
             }
-
+            
+            // Floating Buttons
             floatingBuySellView
         }
-        .sheet(isPresented: $showBuySheet) {
-            if let stock = stock {
-                BuySellSheetView(stock: stock, isBuying: true)
-                    .environmentObject(viewModel)
+        .task {
+            guard let stock = vm.stock else { return }
+            await predictionVM.fetchPredictions(for: stock.SYMBOL)
+        }
+        .sheet(isPresented: $vm.showBuySheet) {
+            if let stock = vm.stock {
+                BuySellSheetView(stock: stock, isBuying: true, authViewModel: authViewModel)
+                    .environmentObject(homeVM)
             }
         }
-        .sheet(isPresented: $showSellSheet) {
-            if let stock = stock {
-                BuySellSheetView(stock: stock, isBuying: false)
-                    .environmentObject(viewModel)
+        .sheet(isPresented: $vm.showSellSheet) {
+            if let stock = vm.stock {
+                BuySellSheetView(stock: stock, isBuying: false, authViewModel: authViewModel)
+                    .environmentObject(homeVM)
             }
         }
-        .navigationTitle(stock?.symbol ?? "Stock")
+        .navigationTitle(vm.stock?.SYMBOL ?? "Stock")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if let stock = stock {
+                if let stock = vm.stock {
                     HStack {
-                        Text(stock.symbol)
+                        Text(stock.SYMBOL)
                             .font(.headline)
                             .foregroundStyle(Color.theme.secondary)
                         StockImageView(stock: stock)
@@ -63,38 +90,42 @@ struct DetailView: View {
             }
         }
     }
-
-    private var tabSelector: some View {
-        HStack {
-            Button(action: { selectedTab = 0 }) {
+    
+    // MARK: - Tab Selector
+    var tabSelector: some View {
+        HStack(spacing: 0) {
+            Button {
+                vm.selectedTab = 0
+            } label: {
                 Text("Details")
-                    .fontWeight(selectedTab == 0 ? .bold : .regular)
-                    .padding(.vertical, 8)
+                    .fontWeight(vm.selectedTab == 0 ? .bold : .regular)
+                    .foregroundStyle(vm.selectedTab == 0 ? .white : .primary)
                     .frame(maxWidth: .infinity)
-                    .background(selectedTab == 0 ? Color.blue.opacity(0.1) : Color.clear)
-                    .cornerRadius(8)
             }
+            .buttonStyle(.plain)
 
-            Button(action: { selectedTab = 1 }) {
+            Button {
+                vm.selectedTab = 1
+            } label: {
                 Text("About")
-                    .fontWeight(selectedTab == 1 ? .bold : .regular)
-                    .padding(.vertical, 8)
+                    .fontWeight(vm.selectedTab == 1 ? .bold : .regular)
+                    .foregroundStyle(vm.selectedTab == 1 ? .white : .primary)
                     .frame(maxWidth: .infinity)
-                    .background(selectedTab == 1 ? Color.blue.opacity(0.1) : Color.clear)
-                    .cornerRadius(8)
             }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
-
+    
+    // MARK: - Floating Buy/Sell Buttons
     private var floatingBuySellView: some View {
         VStack {
             Spacer()
             HStack(spacing: 16) {
-                Button(action: { showBuySheet = true }) {
+                Button {
+                    vm.showBuySheet = true
+                } label: {
                     Text("Buy")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -103,8 +134,10 @@ struct DetailView: View {
                         .background(Color.green)
                         .cornerRadius(12)
                 }
-
-                Button(action: { showSellSheet = true }) {
+                
+                Button {
+                    vm.showSellSheet = true
+                } label: {
                     Text("Sell")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -121,121 +154,59 @@ struct DetailView: View {
             .shadow(radius: 5)
         }
     }
-
+    
+    // MARK: - Tab Detail View
     private var tabDetailView: some View {
         Group {
-            if selectedTab == 0 {
+            if vm.selectedTab == 0 {
                 VStack(spacing: 20) {
-                    if  let stock = stock{
-                        StockRowView(stock: stock, portfolioStock: DBStock)
+                    if let stock = vm.stock {
+                        StockRowView(stock: stock, portfolioStock: vm.DBStock)
                     }
+                    
+                    // Overview
                     SectionHeader(title: "Overview")
                     LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(overviewInfo().prefix(showMoreOverview ? .max : 4), id: \ .0) { item in
+                        ForEach(vm.overviewInfo().prefix(vm.showMoreOverview ? .max : 4), id: \.0) { item in
                             InfoCell(title: item.0, value: item.1)
                         }
                     }
                     .padding(.horizontal)
-
-                    Button(showMoreOverview ? "Show less" : "Read more") {
-                        withAnimation { showMoreOverview.toggle() }
+                    
+                    Button(vm.showMoreOverview ? "Show less" : "Read more") {
+                        withAnimation { vm.showMoreOverview.toggle() }
                     }
                     .font(.subheadline)
                     .foregroundColor(.blue)
-
+                    
+                    // Additional Details
                     SectionHeader(title: "Additional Details")
                     LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(additionalInfo().prefix(showMoreDetails ? .max : 4), id: \ .0) { item in
+                        ForEach(vm.additionalInfo().prefix(vm.showMoreDetails ? .max : 4), id: \.0) { item in
                             InfoCell(title: item.0, value: item.1)
                         }
                     }
                     .padding(.horizontal)
-
-                    Button(showMoreDetails ? "Show less" : "Read more") {
-                        withAnimation { showMoreDetails.toggle() }
+                    
+                    Button(vm.showMoreDetails ? "Show less" : "Read more") {
+                        withAnimation { vm.showMoreDetails.toggle() }
                     }
                     .font(.subheadline)
                     .foregroundColor(.blue)
                 }
                 .padding(.top)
             } else {
-                if let symbol = stock?.symbol {
-                    WikiDescriptionView(title: mapSymbolToCompany(symbol))
-                        .padding()
-                }
+                StockSummaryView(stockName: summaryVM.stockName)
+                    .padding(.top)
             }
         }
     }
-
-    private func overviewInfo() -> [(String, String)] {
-        return [
-            ("Symbol", stock?.symbol ?? "-"),
-            ("Last Price", stock?.lastPrice.asCurrencywith6Decimals() ?? "-"),
-            ("Change %", stock?.pChange.asPercentString() ?? "-"),
-            ("Total Volume", "\(stock?.totalTradedVolume ?? 0)"),
-            ("Total Value", stock?.totalTradedValue.asNumberString() ?? "-"),
-            ("Open", stock?.open.asCurrencywith6Decimals() ?? "-"),
-            ("Day High", stock?.dayHigh.asCurrencywith6Decimals() ?? "-"),
-            ("Day Low", stock?.dayLow.asCurrencywith6Decimals() ?? "-"),
-            ("Previous Close", stock?.previousClose.asCurrencywith6Decimals() ?? "-"),
-            ("Change", stock?.change.asCurrencywith6Decimals() ?? "-")
-        ]
-    }
-
-    private func additionalInfo() -> [(String, String)] {
-        return [
-            ("FFMC", stock?.ffmc?.asNumberString() ?? "-"),
-            ("Year High", stock?.yearHigh.asCurrencywith6Decimals() ?? "-"),
-            ("Year Low", stock?.yearLow.asCurrencywith6Decimals() ?? "-"),
-            ("Index Close", stock?.stockIndClosePrice.asCurrencywith6Decimals() ?? "-"),
-            ("Last Updated", stock?.lastUpdateTime ?? "-"),
-            ("Near 52W High", stock?.nearWKH?.asNumberString() ?? "-"),
-            ("Near 52W Low", stock?.nearWKL?.asNumberString() ?? "-"),
-            ("365D % Change", stock?.perChange365D?.asPercentString() ?? "-"),
-            ("30D % Change", stock?.perChange30D?.asPercentString() ?? "-")
-        ]
-    }
-
-    private func mapSymbolToCompany(_ symbol: String) -> String {
-        // Mapping logic here...
-        symbol.replacingOccurrences(of: ".NS", with: "")
-    }
-}
-
-// MARK: - Components
-
-struct InfoCell: View {
-    let title: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.gray)
-            Text(value)
-                .font(.body)
-                .fontWeight(.semibold)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct SectionHeader: View {
-    let title: String
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(title)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.theme.accent)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-
-            Divider()
-        }
-    }
 }
 
 
+// MARK: - Array Safe Access
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}

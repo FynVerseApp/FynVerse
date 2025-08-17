@@ -31,10 +31,10 @@
       "color" : {
         "color-space" : "display-p3",
         "components" : {
-          "alpha" : "0.965",
-          "blue" : "0.759",
-          "green" : "0.781",
-          "red" : "0.777"
+          "alpha" : "0.901",
+          "blue" : "0.101",
+          "green" : "0.101",
+          "red" : "0.101"
         }
       },
       "idiom" : "universal"

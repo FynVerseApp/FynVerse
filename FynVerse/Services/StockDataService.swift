@@ -1,31 +1,23 @@
 import Foundation
+
 class StockDataService {
     static let shared = StockDataService()
     private init() {}
-    
+
+    private let urlString = "http://192.168.1.30:8000/allstocks" //  FastAPI URL
+
     func fetchStocks() async -> [StockModel] {
-        let url = "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%2050"
-        let headers = [
-                  "Accept": "*/*",
-                  "Accept-Encoding": "gzip, deflate, br",
-                  "Accept-Language": "en-US,en;q=0.9",
-                  "Connection": "keep-alive",
-                  "Host": "www.nseindia.com",
-                  "Origin": "https://www.nseindia.com",
-                  "Referer": "https://www.nseindia.com/market-data/live-equity-market",
-                  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-              ]
-
-
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL:", urlString)
+            return []
+        }
+        
         do {
-            let response: NiftyResponse = try await NetworkManager.shared.fetch(
-                urlString: url,
-                headers: headers,
-                responseType: NiftyResponse.self
-            )
-            return response.data
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let stocks = try JSONDecoder().decode([StockModel].self, from: data)
+            return stocks
         } catch {
-            print("❌ Failed to fetch stocks: \(error)")
+            print("❌ Failed to fetch stocks:", error)
             return []
         }
     }

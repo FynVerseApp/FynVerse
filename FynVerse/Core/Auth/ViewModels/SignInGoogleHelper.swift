@@ -9,10 +9,6 @@ import Foundation
 import GoogleSignIn
 
 
-struct GoogleSignInResultModel{
-    let idToken:String
-    let accessToken:String
-}
 
 final class SignInGoogleHelper{
     @MainActor

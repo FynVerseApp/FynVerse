@@ -24,7 +24,7 @@ struct DBPortfolioStock: Codable, Identifiable {
     }
 }
 
-struct DBTransaction: Codable, Identifiable {
+struct DBTransaction: Codable, Identifiable,Hashable {
     @DocumentID var id: String?
     let stockSymbol: String
     let transactionType: String
@@ -44,6 +44,7 @@ struct DBTransaction: Codable, Identifiable {
 
 struct DBUser: Codable {
     var userID: String
+    var fullName: String? 
     let email: String?
     let photoURL: String?
     let dateCreatedTimestamp: Timestamp?
@@ -54,6 +55,7 @@ struct DBUser: Codable {
         case userID = "user_id"
         case email
         case photoURL = "photo_url"
+        case fullName = "fullName"  
         case dateCreatedTimestamp = "date_created_timestamp"
     }
     
@@ -77,7 +79,7 @@ final class UserManager {
     func createNewUser(user: DBUser) async throws {
         do {
             try userDocument(userID: user.userID)
-                .setData(from: user, merge: false)
+                .setData(from: user, merge: true)
         } catch {
             throw error
         }
@@ -104,7 +106,7 @@ final class UserManager {
     ) async throws {
         // The closure now takes a transaction and an NSErrorPointer.
         // The return type is Any?
-        try await Firestore.firestore().runTransaction { (transaction, errorPointer) -> Any? in
+       _ = try await Firestore.firestore().runTransaction { (transaction, errorPointer) -> Any? in
             do {
                 let userDocRef = Firestore.firestore().collection("users").document(userID)
                 let portfolioDocRef = userDocRef.collection("portfolio").document(stockSymbol)
@@ -164,7 +166,7 @@ final class UserManager {
     ) async throws {
         // The closure now takes a transaction and an NSErrorPointer.
         // The return type is Any?
-        try await Firestore.firestore().runTransaction { (transaction, errorPointer) -> Any? in
+       _ = try await Firestore.firestore().runTransaction { (transaction, errorPointer) -> Any? in
             do {
                 let userDocRef = Firestore.firestore().collection("users").document(userID)
                 let portfolioDocRef = userDocRef.collection("portfolio").document(stockSymbol)

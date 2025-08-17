@@ -40,6 +40,14 @@ struct SignUpView: View {
                                 try await vm.logIn()
                             }
                             showSignInView = false
+                            DispatchQueue.main.async {
+                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+                                    window.rootViewController = UIHostingController(rootView: LoadingTransitionView(authvm: vm))
+                                    window.makeKeyAndVisible()
+                                }
+                            }
+
                         } catch {
                             print("❌ Auth error: \(error)")
                         }

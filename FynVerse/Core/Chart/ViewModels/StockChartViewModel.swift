@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 @MainActor
 class StockChartViewModel: ObservableObject {
     @Published var historicData: [HistoricPriceModel] = []
@@ -26,10 +27,10 @@ class StockChartViewModel: ObservableObject {
         currentSymbol = symbol
 
         let fullSymbol: String
-        if symbol != "NIFTY50" {
+        if symbol != "NIFTY50" { // Assuming "NIFTY50" is a special case for index
             fullSymbol = symbol.contains(".NS") ? symbol : symbol + ".NS"
         } else {
-            fullSymbol = "^NSEI"
+            fullSymbol = "^NSEI" // Yahoo Finance symbol for Nifty 50
         }
 
         let data = await HistoricDataService.shared.fetchHistoricalPrices(
@@ -45,7 +46,7 @@ class StockChartViewModel: ObservableObject {
     var isStockUp: Bool {
         guard let first = historicData.first?.close,
               let last = historicData.last?.close else {
-            return true
+            return true // Default to green if no data
         }
         return last >= first
     }

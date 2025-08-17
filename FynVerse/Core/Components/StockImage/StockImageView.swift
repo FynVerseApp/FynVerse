@@ -25,8 +25,11 @@ struct StockImageView: View {
                 ProgressView()
             }
             else{
-                Image(systemName: "indianrupeesign.ring.dashed")
-                    .foregroundStyle(Color.theme.secondary)
+                Image(systemName: "chart.line.uptrend.xyaxis") // Substitute
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.gray)
+                    .padding()
             }
         } .onAppear {
             Task {
@@ -36,8 +39,4 @@ struct StockImageView: View {
     }
 }
 
-#Preview {
-    StockImageView(stock: DeveloperPreview.instance.stock)
-        .padding()
-       
-}
+

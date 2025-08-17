@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		851D54582E253CC80076368A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 851D54572E253CC80076368A /* GoogleSignIn */; };
 		851D545A2E253CC80076368A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 851D54592E253CC80076368A /* GoogleSignInSwift */; };
-		8531F0252E2763900053A8C3 /* SwiftOTP in Frameworks */ = {isa = PBXBuildFile; productRef = 8531F0242E2763900053A8C3 /* SwiftOTP */; };
+		854180F62E40F1C700269198 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 854180F52E40F1C700269198 /* GoogleGenerativeAI */; };
 		85506C262E23BCC500ED607C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 85506C252E23BCC500ED607C /* FirebaseAnalytics */; };
 		85506C292E23C1E600ED607C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 85506C282E23C1E600ED607C /* FirebaseAuth */; };
 		85937FC02E3BAA6A00366299 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 85937FBF2E3BAA6A00366299 /* FirebaseFirestore */; };
@@ -77,7 +77,7 @@
 				85506C262E23BCC500ED607C /* FirebaseAnalytics in Frameworks */,
 				85506C292E23C1E600ED607C /* FirebaseAuth in Frameworks */,
 				851D54582E253CC80076368A /* GoogleSignIn in Frameworks */,
-				8531F0252E2763900053A8C3 /* SwiftOTP in Frameworks */,
+				854180F62E40F1C700269198 /* GoogleGenerativeAI in Frameworks */,
 				851D545A2E253CC80076368A /* GoogleSignInSwift in Frameworks */,
 				85937FC02E3BAA6A00366299 /* FirebaseFirestore in Frameworks */,
 			);
@@ -152,8 +152,8 @@
 				85506C282E23C1E600ED607C /* FirebaseAuth */,
 				851D54572E253CC80076368A /* GoogleSignIn */,
 				851D54592E253CC80076368A /* GoogleSignInSwift */,
-				8531F0242E2763900053A8C3 /* SwiftOTP */,
 				85937FBF2E3BAA6A00366299 /* FirebaseFirestore */,
+				854180F52E40F1C700269198 /* GoogleGenerativeAI */,
 			);
 			productName = FynVerse;
 			productReference = 85506BF82E23B68100ED607C /* FynVerse.app */;
@@ -240,7 +240,7 @@
 			packageReferences = (
 				85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */,
+				854180F42E40F1C700269198 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 85506BF92E23B68100ED607C /* Products */;
@@ -457,7 +457,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -489,7 +489,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -625,12 +625,12 @@
 				minimumVersion = 9.0.0;
 			};
 		};
-		8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */ = {
+		854180F42E40F1C700269198 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lachlanbell/SwiftOTP";
+			repositoryURL = "https://github.com/google/generative-ai-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.2;
+				minimumVersion = 0.5.6;
 			};
 		};
 		85506C242E23BCC500ED607C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
@@ -654,10 +654,10 @@
 			package = 851D54562E253CC80076368A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
 		};
-		8531F0242E2763900053A8C3 /* SwiftOTP */ = {
+		854180F52E40F1C700269198 /* GoogleGenerativeAI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8531F0232E2763900053A8C3 /* XCRemoteSwiftPackageReference "SwiftOTP" */;
-			productName = SwiftOTP;
+			package = 854180F42E40F1C700269198 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
 		};
 		85506C252E23BCC500ED607C /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

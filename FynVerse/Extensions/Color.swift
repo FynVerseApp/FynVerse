@@ -5,7 +5,7 @@
 //  Created by zubair ahmed on 15/07/25.
 //
 
-import Foundation
+
 import SwiftUI
 
 
@@ -17,21 +17,19 @@ struct ColorTheme {
     let secondary = Color("SecondaryTextColor") // For secondary text elements
 
     // Background gradients with subtle, cool tones for a formal trading app look
+    /*
     let background =                 LinearGradient(
         colors: [ Color(red: 127/255, green: 255/255, blue: 212/255), .teal.opacity(0.8)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
-    )
-
-    // Card background: darker and desaturated gradient to visually separate cards
-    let cardBackground = LinearGradient(
-            colors: [
-                Color(hue: 0.60, saturation: 0.22, brightness: 0.14), // Darker slate blue-gray for depth
-                Color(hue: 0.60, saturation: 0.12, brightness: 0.18)  // Slightly lighter for subtle contrast
-            ],
+    )*/
+    let background =   LinearGradient(
+            // A gentle gradient from a light, airy teal to a muted, deep green
+            colors: [Color(red: 200/255, green: 230/255, blue: 220/255), Color(red: 100/255, green: 170/255, blue: 150/255)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    let cardBackground = Color.gray.opacity(0.2)
 }
 
 extension Color{

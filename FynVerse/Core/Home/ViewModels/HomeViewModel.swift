@@ -1,170 +1,151 @@
 import Foundation
-import Firebase
-import FirebaseFirestore
-import SwiftUI // Use SwiftUI instead of SwiftUICore if you are using @EnvironmentObject
-
 @MainActor
 class HomeViewModel: ObservableObject {
-
-    // Published properties for UI updates
     @Published var allStocks: [StockModel] = []
     @Published var topGainerStocks: [StockModel] = []
     @Published var topLooserStocks: [StockModel] = []
-    @Published var searchText: String = "" {
-        didSet {
-            filterStocks()
-        }
-    }
+    @Published var searchText: String = "" { didSet { filterStocks() } }
     @Published var filteredStocks: [StockModel] = []
     @Published var portfolioStocks: [DBPortfolioStock] = []
+    @Published var userWatchlists: [UserWatchlist] = []
     
-    // Published properties for the portfolio summary
     @Published var totalInvestment: Double = 0
     @Published var portfolioValue: Double = 0
     @Published var totalGainLoss: Double = 0
     
-    // Dependencies
     @Published var authViewModel: AuthViewModel
+    @Published var selectedTab = 0
+    
+    @Published var dataInitializedForHome: Bool = false
+    @Published var dataInitializedForPortfolio: Bool = false
+    @Published var dataInitializedForWatchlists: Bool = false
+    
     private let manager = StockDataService.shared
-    private let userManager = UserManager.shared
-
+    private let portfolioService = PortfolioService()
+    private let watchlistService = WatchlistService()
+    
     init(authViewModel: AuthViewModel) {
         self.authViewModel = authViewModel
-        // Note: You should call a fetch function here after the user is authenticated.
-        // For example, in a `.task` modifier in your view.
     }
     
-    // MARK: - Stock Data Fetching & Filtering
-    
+    // MARK: - Stocks
     func fetchStocks() async {
-        let fetchedStocks = await manager.fetchStocks()
-        if !fetchedStocks.isEmpty {
-            await uploadStocks(fetchedStocks)
-            allStocks = fetchedStocks
-            print("✅ Stocks fetched from API and saved.")
-        } else {
-            allStocks = await fetchStocksFromFirestore()
+        let cached = StockCacheService.loadStocksFromCache()
+        if !cached.isEmpty {
+            allStocks = cached
+            applyFilters()
+            print("✅ Showing cached stocks...")
         }
         
-        filterStocks()
-        filterGainerStocks()
-        filterLooserStocks()
+        let fetched = await manager.fetchStocks()
+        if !fetched.isEmpty {
+            allStocks = fetched
+            StockCacheService.saveStocksToCache(fetched)
+            print("✅ Stocks fetched from API.")
+        }
         
-        // After fetching all stocks, also fetch portfolio stocks to enable full summary calculation
-        await fetchPortfolioStocks()
+        applyFilters()
     }
-
+    
+    // MARK: - Portfolio
+    func fetchPortfolioStocks() async {
+        guard let user = authViewModel.user else { return }
+        do {
+            portfolioStocks = try await portfolioService.fetchPortfolioStocks(for: user.userID)
+            let summary = portfolioService.calculatePortfolioSummary(portfolioStocks: portfolioStocks, allStocks: allStocks)
+            totalInvestment = summary.investment
+            portfolioValue = summary.value
+            totalGainLoss = summary.gainLoss
+        } catch {
+            print("❌ Portfolio fetch error:", error.localizedDescription)
+        }
+    }
+    
+    // MARK: - Watchlists
+    func fetchUserWatchlists() async {
+        guard let user = authViewModel.user else { return }
+        do {
+            userWatchlists = try await watchlistService.fetchUserWatchlists(userID: user.userID)
+        } catch {
+            print("❌ Watchlist fetch error:", error.localizedDescription)
+        }
+    }
+    
+    func addWatchlist(name: String) async {
+        guard let user = authViewModel.user else { return }
+        do {
+            let newWL = try await watchlistService.addWatchlist(userID: user.userID, name: name)
+            userWatchlists.append(newWL)
+        } catch {
+            print("❌ Add watchlist error:", error.localizedDescription)
+        }
+    }
+    
+    func addStock(_ stock: StockModel, toWatchlist watchlist: UserWatchlist) async {
+        guard let user = authViewModel.user else { return }
+        var updated = watchlist
+        if !updated.stockSymbols.contains(stock.SYMBOL) {
+            updated.stockSymbols.append(stock.SYMBOL)
+            do {
+                try watchlistService.updateWatchlist(userID: user.userID, watchlist: updated)
+                if let idx = userWatchlists.firstIndex(where: { $0.id == updated.id }) {
+                    userWatchlists[idx] = updated
+                }
+            } catch {
+                print("❌ Add stock error:", error.localizedDescription)
+            }
+        }
+    }
+    
+    func removeStock(_ stock: StockModel, fromWatchlist watchlist: UserWatchlist) async {
+        guard let user = authViewModel.user else { return }
+        var updated = watchlist
+        updated.stockSymbols.removeAll { $0 == stock.SYMBOL }
+        do {
+            try watchlistService.updateWatchlist(userID: user.userID, watchlist: updated)
+            if let idx = userWatchlists.firstIndex(where: { $0.id == updated.id }) {
+                userWatchlists[idx] = updated
+            }
+        } catch {
+            print("❌ Remove stock error:", error.localizedDescription)
+        }
+    }
+    
+    func deleteWatchlist(_ watchlist: UserWatchlist) async {
+        guard let user = authViewModel.user, let id = watchlist.id else { return }
+        do {
+            try await watchlistService.deleteWatchlist(userID: user.userID, watchlistID: id)
+            userWatchlists.removeAll { $0.id == id }
+        } catch {
+            print("❌ Delete watchlist error:", error.localizedDescription)
+        }
+    }
+    
+    // MARK: - Filters
     func filterStocks() {
-        guard !searchText.isEmpty else {
-            filteredStocks = allStocks
-            return
-        }
         let lower = searchText.lowercased()
-        filteredStocks = allStocks.filter {
-            $0.symbol.lowercased().contains(lower) || $0.identifier.lowercased().contains(lower)
-        }
+        filteredStocks = searchText.isEmpty
+            ? allStocks
+            : allStocks.filter { $0.SYMBOL.lowercased().contains(lower) || $0.NAME_OF_COMPANY.lowercased().contains(lower) }
     }
     
     func filterGainerStocks() {
-        topGainerStocks = allStocks
-            .filter { $0.pChange > 0 }
-            .sorted { $0.pChange > $1.pChange }
+        topGainerStocks = allStocks.filter { $0.Percent_Change > 0 }
+            .sorted { $0.Percent_Change > $1.Percent_Change }
     }
     
     func filterLooserStocks() {
-        topLooserStocks = allStocks
-            .filter { $0.pChange < 0 }
-            .sorted { $0.pChange < $1.pChange }
-    }
-
-    // MARK: - Portfolio Management
-
-    func fetchPortfolioStocks() async {
-        guard let user = self.authViewModel.user else {
-            print("❌ User not available, cannot fetch portfolio stocks.")
-            return
-        }
-        
-        do {
-            let dbPortfolioStocks = try await userManager.getUserPortfolio(userID: user.userID)
-            self.portfolioStocks = dbPortfolioStocks
-            print("✅ Portfolio stocks fetched and added to array.")
-            
-            // ✅ CRITICAL: Call the summary calculation here
-            await calculatePortfolioSummary()
-            
-        } catch {
-            print("❌ Failed to fetch portfolio stocks: \(error.localizedDescription)")
-            self.portfolioStocks = []
-        }
+        topLooserStocks = allStocks.filter { $0.Percent_Change < 0 }
+            .sorted { $0.Percent_Change < $1.Percent_Change }
     }
     
-    private func calculatePortfolioSummary() async {
-        guard !portfolioStocks.isEmpty else {
-            self.totalInvestment = 0
-            self.portfolioValue = 0
-            self.totalGainLoss = 0
-            return
-        }
-        
-        var calculatedTotalInvestment: Double = 0.0
-        var calculatedPortfolioValue: Double = 0.0
-
-        for portfolioStock in portfolioStocks {
-            
-            // Get the current stock data from the main list of all stocks
-            // This assumes that `allStocks` is already populated.
-            guard let currentStockData = allStocks.first(where: { $0.symbol == portfolioStock.stockSymbol }) else {
-                print("❌ Stock data not found for symbol: \(portfolioStock.stockSymbol)")
-                continue
-            }
-            
-            let investment = Double(portfolioStock.quantity) * portfolioStock.avgBuyPrice
-            calculatedTotalInvestment += investment
-
-            let currentPrice = currentStockData.lastPrice
-            let currentValue = Double(portfolioStock.quantity) * currentPrice
-            calculatedPortfolioValue += currentValue
-        }
-
-        self.totalInvestment = calculatedTotalInvestment
-        self.portfolioValue = calculatedPortfolioValue
-        self.totalGainLoss = self.portfolioValue - self.totalInvestment
+    private func applyFilters() {
+        filterStocks()
+        filterGainerStocks()
+        filterLooserStocks()
     }
-    
-    // MARK: - Firestore Cache
-    
-    func uploadStocks(_ stocks: [StockModel]) async {
-        // ... (Your existing function)
-        let db = Firestore.firestore()
-        for stock in stocks {
-            do {
-                try await db.collection("stocksCache").document(stock.symbol).setData(from: stock, merge: false)
-                print("Uploaded \(stock.symbol)")
-            } catch {
-                print("Failed to upload \(stock.symbol): \(error)")
-            }
-        }
-    }
-    
-    func fetchStocksFromFirestore() async -> [StockModel] {
-        // ... (Your existing function)
-        let db = Firestore.firestore()
-        do {
-            let snapshot = try await db.collection("stocksCache").getDocuments()
-            let stocks = snapshot.documents.compactMap { doc -> StockModel? in
-                try? doc.data(as: StockModel.self)
-            }
-            return stocks
-        } catch {
-            print("Failed to load from Firestore: \(error)")
-            return []
-        }
-    }
-    
-    // MARK: - Utility Functions
-
     func returnStockModel(symbol: String) -> StockModel? {
-        return allStocks.first { $0.symbol == symbol }
+        // The 'first' method returns an optional, so the function must also return an optional.
+        return allStocks.first { $0.SYMBOL == symbol }
     }
 }

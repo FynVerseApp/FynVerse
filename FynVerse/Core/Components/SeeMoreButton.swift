@@ -1,32 +1,20 @@
-//
-//  SeeMoreButton.swift
-//  FynVerse
-//
-//  Created by zubair ahmed on 19/07/25.
-//
-
 import SwiftUI
 
 struct SeeMoreButton: View {
     let resultantStocks: [StockModel]
-    
-    var body: some View {
-        // Push the entire array of stocks as a value
-        NavigationLink(value: resultantStocks) {
-            Text("See More")
-                .font(.subheadline)
-                .bold()
-        }
-        .buttonStyle(.plain)
-    }
-}
+    let title: String
+    @ObservedObject var authvm:AuthViewModel
 
-#Preview {
-    NavigationStack {
-        SeeMoreButton(resultantStocks: [
-            DeveloperPreview.instance.stock,
-            DeveloperPreview.instance.stock,
-            DeveloperPreview.instance.stock
-        ])
+    var body: some View {
+        NavigationLink {
+            SeeMoreView(resultantStocks: resultantStocks, title: title, vm: authvm)
+        } label: {
+            HStack(spacing: 4) {
+                Text("See All")
+                Image(systemName: "chevron.right")
+            }
+            .font(.subheadline)
+        }
+        .buttonStyle(.plain) // Make sure it doesn't have a default style
     }
 }
